@@ -1,42 +1,61 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { RefreshControl } from "react-native";
 import { DataTable } from "react-native-paper";
 import ScreenWrapper from "../../ScreenWrapper";
-type Props = {};
+import { useAppSelector } from "../../useFullItems/redux-store";
+import { Order } from "../order/redux";
+import { axiosGetFunction } from "../../useFullItems/axios";
+import { DetailModal_Of_log } from "../../components/LogDetailModal";
+export interface OrderLogType
+  extends Omit<
+    Order,
+    "orderId" | "orderedBy" | "tableSectionId" | "tableNumber"
+  > {
+  SessionLogs: {
+    tableNumber: number;
+    tableId: string;
+  };
+  id: string;
+  orderTimeStamp: string;
+  sessionLogsUuid: string;
+  waiterId: string;
+  chefId: string;
+}
 
-const sortedItems: {
-  key: number;
-  name: string;
-  calories: number;
-  fat: number;
-}[] = [];
-
-(() => {
-  for (let i = 0; i < 60; i++) {
-    sortedItems.push({
-      key: i,
-      calories: i * 10,
-      fat: i * 12,
-      name: 'Deepanshu K',
-    });
-  }
-})();
-
-function Logs({}: Props) {
+function Logs() {
   const [refreshing, setRefreshing] = useState(false);
+  const [orderLogs, setOrderLogs] = useState<OrderLogType[]>([]);
+  const [orderDetail, setOrderDetial] = useState<OrderLogType>();
 
-  const onRefresh = useCallback(() => {
-    setRefreshing(true);
-    setTimeout(() => {
-      setRefreshing(false);
-    }, 1000);
+  const { tables, dishesh } = useAppSelector(
+    (store) => store.restaurantInfoSlice.defaultValues
+  );
+
+  useEffect(() => {
+    getOrderLogs();
   }, []);
+
+  const getOrderLogs = () => {
+    setRefreshing(true);
+    axiosGetFunction({
+      parentUrl: "orders",
+      childUrl: "logs",
+      thenFunction: (e: any) => {
+        setOrderLogs(e);
+        setRefreshing(false);
+      },
+    });
+  };
+
+  const closeDetialModal = () => setOrderDetial(undefined);
+
   return (
     <ScreenWrapper
       refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        <RefreshControl refreshing={refreshing} onRefresh={getOrderLogs} />
       }
     >
+      <DetailModal_Of_log logDetail={orderDetail} close={closeDetialModal} />
       <DataTable>
         <DataTable.Header>
           <DataTable.Title>Dish Name</DataTable.Title>
@@ -44,13 +63,26 @@ function Logs({}: Props) {
           <DataTable.Title numeric>Date Time</DataTable.Title>
         </DataTable.Header>
 
-        {sortedItems.map((item) => (
-          <DataTable.Row key={item.key} onPress={() => alert(item.name)}>
-            <DataTable.Cell>Chicken Biryni m</DataTable.Cell>
-            <DataTable.Cell numeric>{item.calories}</DataTable.Cell>
-            <DataTable.Cell numeric>24/12 11:24</DataTable.Cell>
-          </DataTable.Row>
-        ))}
+        {orderLogs.map((item) => {
+          const table = tables.find(
+            (table) => table.id === item.SessionLogs.tableId
+          );
+          const orderData = new Date(item.orderTimeStamp);
+          return (
+            <DataTable.Row key={item.id} onPress={() => setOrderDetial(item)}>
+              <DataTable.Cell>{dishesh[item.dishId]}</DataTable.Cell>
+              <DataTable.Cell numeric>
+                {table?.prefix}
+                {item.SessionLogs.tableNumber}
+                {table?.suffix}
+              </DataTable.Cell>
+              <DataTable.Cell numeric>
+                {orderData.getHours()}:{orderData.getMinutes()}{" "}
+                {orderData.getDate()}/{orderData.getMonth() + 1}
+              </DataTable.Cell>
+            </DataTable.Row>
+          );
+        })}
       </DataTable>
     </ScreenWrapper>
   );

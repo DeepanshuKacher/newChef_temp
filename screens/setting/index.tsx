@@ -13,8 +13,6 @@ function Setting({ navigation }: { navigation: any }) {
 
   const selfInfo = useAppSelector((store) => store.selfInfo.defaultValues);
 
-  console.log({ selfInfo });
-
   return (
     <ScreenWrapper style={{ borderWidth: 2 }}>
       <View style={{ borderBottomWidth: 1.5, paddingVertical: 10 }}>

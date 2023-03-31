@@ -4,14 +4,11 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { axiosPatchFunction } from "../../useFullItems/axios";
 import { useAppSelector } from "../../useFullItems/redux-store";
 import type { Order as DishOrderType } from "./redux";
-// import { useMemo } from "react";
 
 function Order() {
   const orders = useAppSelector(
     (store) => store?.orderContainer?.orders
-  )?.filter(
-    (order) => order?.chefAssign === undefined && order?.completed !== true
-  );
+  )?.filter((order) => order?.chefAssign === undefined && !order?.completed);
 
   const { dishesh, tables } = useAppSelector(
     (store) => store?.restaurantInfoSlice?.defaultValues

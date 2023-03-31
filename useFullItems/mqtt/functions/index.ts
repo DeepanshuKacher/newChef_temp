@@ -1,8 +1,10 @@
 import type { Order } from "../../../screens/order/redux";
 import { action_types, store } from "../../redux-store";
 
-export const pushInOrderContainer = (orderDetail: Order) =>
-  store.dispatch(action_types.pushInOrderContainer(orderDetail));
+export const pushInOrderContainer = (order: {
+  order: Order;
+  orderNo: number;
+}) => store.dispatch(action_types.pushInOrderContainer(order));
 
 export const updateOrder = (message: {
   chefId?: string;
@@ -23,6 +25,9 @@ export const updateOrder = (message: {
   }
 };
 
-export const pushBulkOrder = (orders: Order[]) => {
+export const pushBulkOrder = (orders: {
+  orderArray: Order[];
+  orderNo: number;
+}) => {
   store.dispatch(action_types.pushBulkOrder(orders));
 };

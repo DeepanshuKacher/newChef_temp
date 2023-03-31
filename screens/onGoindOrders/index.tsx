@@ -13,12 +13,6 @@ function OnGoingOrder() {
     (order) => order.chefAssign === selfInfo.id && !order.completed
   );
 
-  console.log({
-    allOrders: useAppSelector((store) => store.orderContainer.orders),
-  });
-
-  console.log({ orders });
-
   const { dishesh, tables } = useAppSelector(
     (store) => store.restaurantInfoSlice.defaultValues
   );

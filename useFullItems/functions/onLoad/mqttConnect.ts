@@ -3,6 +3,7 @@ import { getLocalStorageData } from "../../localStorage";
 import { mqttFunction } from "../../mqtt";
 import { Alert } from "react-native";
 import Paho from "paho-mqtt";
+import { reloadAsync } from "expo-updates";
 
 export const mqttConnect = async (restaurantId: string) => {
   const selfDetail = await getLocalStorageData("selfDetail");
@@ -32,6 +33,21 @@ export const mqttConnect = async (restaurantId: string) => {
       Alert.alert("Some issues please restart app");
     },
   });
+
+  client.onConnectionLost = () => {
+    if (constants.IS_DEVELOPMENT) console.log("mqtt connection lost");
+    if (constants.IS_DEVELOPMENT === false)
+      setTimeout(() => {
+        if (client.isConnected() === false) {
+          Alert.alert("Connection lost please restart app", undefined, [
+            {
+              text: "Reload App",
+              onPress: async () => await reloadAsync(),
+            },
+          ]);
+        }
+      }, 5000);
+  };
 
   // let reconnectAttempt = 5;
   /*   client.onConnectionLost = (error: Paho.MQTTError) => {

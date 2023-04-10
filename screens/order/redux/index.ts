@@ -20,11 +20,13 @@ export interface Order {
 interface InitialDataTypes {
   orders: Order[];
   noRepeatContainer: { [orderId: Order["orderId"]]: Order };
+  totalTodayOrder: number;
 }
 
 const initialState: InitialDataTypes = {
   orders: [],
   noRepeatContainer: {},
+  totalTodayOrder: 0,
 };
 
 const orderContainer = createSlice({
@@ -36,6 +38,14 @@ const orderContainer = createSlice({
       for (let x of state.orders) {
         state.noRepeatContainer[x.orderId] = x;
       }
+
+      const todaysDate = new Date().getDate();
+
+      state.totalTodayOrder = state.orders.reduce((acc, currentValue) => {
+        if (new Date(currentValue.createdAt).getDate() === todaysDate)
+          return acc + 1;
+        else return acc;
+      }, 0);
     },
     pushInOrderContainer: (
       state,
@@ -48,14 +58,9 @@ const orderContainer = createSlice({
       if (state.noRepeatContainer[order.orderId] === undefined)
         state.orders.push(action.payload.order);
 
-      const todaysDate = new Date().getDate();
-      const totalTodaysOrder = state.orders.reduce((acc, currentValue) => {
-        if (new Date(currentValue.createdAt).getDate() === todaysDate)
-          return acc + 1;
-        else return acc;
-      }, 0);
+      state.totalTodayOrder += 1;
 
-      if (totalTodaysOrder !== action.payload.orderNo) {
+      if (state.totalTodayOrder !== action.payload.orderNo) {
         Alert.alert("Please reload for fresh content", undefined, [
           {
             text: "Reload",
@@ -102,14 +107,9 @@ const orderContainer = createSlice({
       );
       state.orders.push(...newOrderArray);
 
-      const todaysDate = new Date().getDate();
-      const totalTodaysOrder = state.orders.reduce((acc, currentValue) => {
-        if (new Date(currentValue.createdAt).getDate() === todaysDate)
-          return acc + 1;
-        else return acc;
-      }, 0);
+      state.totalTodayOrder += orderArray.length;
 
-      if (totalTodaysOrder !== action.payload.orderNo) {
+      if (state.totalTodayOrder !== action.payload.orderNo) {
         Alert.alert("Please reload for fresh content", undefined, [
           {
             text: "Reload",

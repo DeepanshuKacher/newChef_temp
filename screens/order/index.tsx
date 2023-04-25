@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { axiosPatchFunction } from "../../useFullItems/axios";
 import { useAppSelector } from "../../useFullItems/redux-store";
 import type { Order as DishOrderType } from "./redux";
+import { fetchAndStoreOrders } from "../../useFullItems/functions/onLoad/fetchAndStoreFunctions";
 
 function Order() {
   const orders = useAppSelector(
@@ -15,6 +16,8 @@ function Order() {
   );
 
   const safeArea = useSafeAreaInsets();
+
+  const itemHeight = 260;
 
   // const safeArea = useMemo(() => useSafeAreaInsets(), []);
 
@@ -29,6 +32,10 @@ function Order() {
       },
       showGlobalLoader: true,
     });
+
+    if (orders.length < 5) {
+      await fetchAndStoreOrders();
+    }
   };
 
   const keyExtractor = (item: DishOrderType) => item.orderId;
@@ -38,7 +45,7 @@ function Order() {
       (table) => table.id === item.tableSectionId
     );
     return (
-      <View style={{ paddingVertical: 20 }}>
+      <View style={{ paddingVertical: 20, height: itemHeight }}>
         <Text style={{ textAlign: "center" }} variant="titleLarge">
           {tableSectionDetail?.prefix}
           {item.tableNumber}
@@ -93,14 +100,14 @@ function Order() {
             </DataTable.Row> */}
           </DataTable>
         </View>
-        {item.user_description && (
-          <Text
-            variant="bodyLarge"
-            style={{ paddingVertical: 10, paddingHorizontal: 5 }}
-          >
-            Description :- {item.user_description}
-          </Text>
-        )}
+        {/* {item.user_description && ( */}
+        <Text
+          variant="bodyLarge"
+          style={{ paddingVertical: 5, paddingHorizontal: 5 }}
+        >
+          Description :- {item.user_description}
+        </Text>
+        {/* )} */}
         {/* <View style={style.addOnsView} className="gap-1">
           <Text style={style.addOnsText}>Extra Chilli</Text>
           <Text style={style.addOnsText}>Extra Chilli</Text>
@@ -110,7 +117,7 @@ function Order() {
         </View> */}
         <Button
           mode="contained"
-          style={{ alignSelf: "flex-end", marginRight: 20, marginTop: 10 }}
+          style={{ alignSelf: "flex-end", marginRight: 20 }}
           onPress={() => {
             acceptOrder(item);
           }}
@@ -132,11 +139,16 @@ function Order() {
       //   backgroundColor: colors.background,
       // }}
       ItemSeparatorComponent={() => (
-        <Divider bold={true} style={{ height: 8 }} />
+        <Divider bold={true} style={{ height: 5 }} />
       )}
       renderItem={renderItem}
       keyExtractor={keyExtractor}
       data={orders}
+      getItemLayout={(data, index) => ({
+        length: itemHeight,
+        offset: itemHeight * index,
+        index,
+      })}
     />
   );
 }
@@ -162,29 +174,3 @@ const style = StyleSheet.create({
     borderRadius: 6,
   },
 });
-
-/*       <View>
-        <Text variant="titleLarge">{data.title}</Text>
-        <View style={style.orderQuantity}>
-          <View style={style.orderQuantityBox}>
-            <Text> </Text>
-            <Text>Full</Text>
-            <Text>Half</Text>
-          </View>
-          <View style={style.orderQuantityBox}>
-            <Text>Large</Text>
-            <Text>2</Text>
-            <Text>3</Text>
-          </View>
-          <View style={style.orderQuantityBox}>
-            <Text>Medium</Text>
-            <Text>2</Text>
-            <Text>8</Text>
-          </View>
-          <View style={style.orderQuantityBox}>
-            <Text>Small</Text>
-            <Text>8</Text>
-            <Text>2</Text>
-          </View>
-        </View>
-      </View> */

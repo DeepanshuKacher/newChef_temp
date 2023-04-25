@@ -55,12 +55,13 @@ const orderContainer = createSlice({
       }>
     ) => {
       const { order, orderNo } = action.payload;
-      if (state.noRepeatContainer[order.orderId] === undefined)
-        state.orders.push(action.payload.order);
+      if (state.noRepeatContainer[order.orderId] === undefined) {
+        state.orders.push(order);
 
-      state.totalTodayOrder += 1;
+        state.totalTodayOrder++;
+      }
 
-      if (state.totalTodayOrder !== action.payload.orderNo) {
+      if (state.totalTodayOrder !== orderNo) {
         Alert.alert("Please reload for fresh content", undefined, [
           {
             text: "Reload",
@@ -107,7 +108,7 @@ const orderContainer = createSlice({
       );
       state.orders.push(...newOrderArray);
 
-      state.totalTodayOrder += orderArray.length;
+      state.totalTodayOrder += newOrderArray.length;
 
       if (state.totalTodayOrder !== action.payload.orderNo) {
         Alert.alert("Please reload for fresh content", undefined, [

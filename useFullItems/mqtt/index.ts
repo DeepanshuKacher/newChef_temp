@@ -10,7 +10,14 @@ export const mqttFunction = (props: Props) => {
   const { code, message } = props;
   switch (code) {
     case "dishOrder":
-      pushInOrderContainer(message);
+      if (
+        store
+          .getState()
+          .orderContainer.orders?.filter(
+            (order) => order?.chefAssign === undefined && !order?.completed
+          ).length < 4
+      )
+        pushInOrderContainer(message);
       break;
 
     case "updateOrder":
@@ -18,7 +25,14 @@ export const mqttFunction = (props: Props) => {
       break;
 
     case "cardDishOrder":
-      pushBulkOrder(message);
+      if (
+        store
+          .getState()
+          .orderContainer.orders?.filter(
+            (order) => order?.chefAssign === undefined && !order?.completed
+          ).length < 4
+      )
+        pushBulkOrder(message);
       break;
 
     default:

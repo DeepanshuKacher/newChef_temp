@@ -14,11 +14,11 @@ export const mqttConnect = async (restaurantId: string) => {
     selfDetail?.id || Math.round(Math.random() * 10000000000)
   );
 
-  client.onMessageArrived = function (message) {
+  client.onMessageArrived = function (message:any) {
     try {
       mqttFunction(JSON.parse(message.payloadString));
     } catch (error) {
-      console.log("mqttFunction error", error);
+      if (constants.IS_DEVELOPMENT) console.log("mqttFunction error", error);
     }
   };
   client.connect({

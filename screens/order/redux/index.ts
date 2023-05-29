@@ -9,7 +9,7 @@ export interface Order {
   tableSectionId: string;
   user_description?: string;
   orderedBy: string;
-  size: "Large" | "Medium" | "Small";
+  size: "large" | "medium" | "small";
   fullQuantity?: number;
   halfQuantity?: number;
   chefAssign?: string;

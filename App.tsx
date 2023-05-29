@@ -14,7 +14,7 @@ import Loader from "./screens/loader";
 import GlobalLoader from "./components/globalLoader";
 // import { Provider as PaperProvider } from "react-native-paper";
 axios.defaults.baseURL = constants.IS_DEVELOPMENT
-  ? "http://192.168.43.48:5000/"
+  ? "http://192.168.201.14:5000/"
   : "https://api.eatrofoods.com/";
 
 export default function App() {

@@ -35,6 +35,28 @@ export const mqttFunction = (props: Props) => {
         pushBulkOrder(message);
       break;
 
+    case "sessionClose":
+      const messageType: { tableNumber: number; tableSectionId: string } =
+        message;
+      const selectTable = store
+        .getState()
+        .restaurantInfoSlice.defaultValues.tables.find(
+          (table) => table.id === messageType.tableSectionId
+        );
+
+      toast.show(
+        `Billing for ${selectTable?.prefix}${messageType.tableNumber}${selectTable?.suffix}`,
+        {
+          // type: "normal | success | warning | danger | custom",
+          // placement: "top | bottom",
+          duration: 60 * 1000,
+          // offset: 30,
+          // animationType: "slide-in | zoom-in",
+        }
+      );
+
+      break;
+
     default:
       console.log(props);
       break;

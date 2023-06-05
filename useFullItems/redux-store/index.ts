@@ -9,6 +9,8 @@ import {
   rejectOrder,
   pushBulkOrder,
   pushInOrderContainer,
+  storeKot,
+  pushKotStore,
 } from "../../screens/order/redux";
 import { loadSelfData } from "./slices/selfDetail";
 import { toggleGlobalLoader } from "./slices/globalLoader";
@@ -26,4 +28,6 @@ export const action_types = {
   pushBulkOrder,
   pushInOrderContainer,
   toggleGlobalLoader,
+  storeKot,
+  pushKotStore,
 };

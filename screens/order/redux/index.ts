@@ -10,8 +10,8 @@ export interface Order {
   user_description?: string;
   orderedBy: string;
   size: "large" | "medium" | "small";
-  fullQuantity?: number;
-  halfQuantity?: number;
+  fullQuantity?: string;
+  halfQuantity?: string;
   chefAssign?: string;
   completed?: string;
   createdAt: string;
@@ -21,12 +21,14 @@ interface InitialDataTypes {
   orders: Order[];
   noRepeatContainer: { [orderId: Order["orderId"]]: Order };
   totalTodayOrder: number;
+  kot: string[][];
 }
 
 const initialState: InitialDataTypes = {
   orders: [],
   noRepeatContainer: {},
   totalTodayOrder: 0,
+  kot: [[]],
 };
 
 const orderContainer = createSlice({
@@ -34,6 +36,8 @@ const orderContainer = createSlice({
   initialState,
   reducers: {
     storeDishOrders: (state, action: PayloadAction<Order[]>) => {
+      // console.log(action.payload);
+
       state.orders = action.payload;
       for (let x of state.orders) {
         state.noRepeatContainer[x.orderId] = x;
@@ -59,6 +63,8 @@ const orderContainer = createSlice({
         state.orders.push(order);
 
         state.totalTodayOrder++;
+
+        state.noRepeatContainer[order.orderId] = order;
       }
 
       if (state.totalTodayOrder !== orderNo) {
@@ -103,7 +109,16 @@ const orderContainer = createSlice({
       }>
     ) => {
       const { orderArray, orderNo } = action.payload;
-      const newOrderArray = orderArray.filter(
+      const newOrderArray: Order[] = [];
+
+      for (let x of orderArray) {
+        if (state.noRepeatContainer[x.orderId] === undefined) {
+          newOrderArray.push(x);
+          state.noRepeatContainer[x.orderId] = x;
+        }
+      }
+
+      orderArray.filter(
         (order) => state.noRepeatContainer[order.orderId] === undefined
       );
       state.orders.push(...newOrderArray);
@@ -119,6 +134,12 @@ const orderContainer = createSlice({
         ]);
       }
     },
+    storeKot: (state, action: PayloadAction<InitialDataTypes["kot"]>) => {
+      state.kot = action?.payload || [[]];
+    },
+    pushKotStore: (state, action: PayloadAction<string[]>) => {
+      state.kot.push(action.payload);
+    },
   },
 });
 
@@ -129,6 +150,8 @@ export const {
   rejectOrder,
   pushBulkOrder,
   pushInOrderContainer,
+  storeKot,
+  pushKotStore,
 } = orderContainer.actions;
 
 // Other code such as selectors can use the imported `RootState` type

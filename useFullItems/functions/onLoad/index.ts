@@ -1,9 +1,15 @@
 import { checkCommit } from "./checkCommit";
-import { fetchAndStoreOrders } from "./fetchAndStoreFunctions";
+import {
+  fetchAndStoreKot,
+  fetchAndStoreOrders,
+} from "./fetchAndStoreFunctions";
 import { mqttConnect } from "./mqttConnect";
 
 export const onLoad = async (restaurantId: string) => {
   await checkCommit();
   mqttConnect(restaurantId);
-  await fetchAndStoreOrders();
+  const fetchAndStoreOrdersPromise = fetchAndStoreOrders();
+  const fetchAndStoreKotPromise = fetchAndStoreKot();
+
+  await Promise.all([fetchAndStoreOrdersPromise, fetchAndStoreKotPromise]);
 };

@@ -8,3 +8,11 @@ export const fetchAndStoreOrders = async () => {
 
   if (data) store.dispatch(action_types.storeDishOrders(data));
 };
+
+export const fetchAndStoreKot = async () => {
+  const data = await axiosGetFunction({
+    parentUrl: "kot",
+  });
+
+  if (data) store.dispatch(action_types.storeKot(data));
+};

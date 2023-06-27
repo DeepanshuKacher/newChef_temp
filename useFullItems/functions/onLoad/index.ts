@@ -7,9 +7,9 @@ import { mqttConnect } from "./mqttConnect";
 
 export const onLoad = async (restaurantId: string) => {
   await checkCommit();
-  mqttConnect(restaurantId);
   const fetchAndStoreOrdersPromise = fetchAndStoreOrders();
-  const fetchAndStoreKotPromise = fetchAndStoreKot();
+  // const fetchAndStoreKotPromise = fetchAndStoreKot();
+  await mqttConnect(restaurantId);
 
-  await Promise.all([fetchAndStoreOrdersPromise, fetchAndStoreKotPromise]);
+  await Promise.all([fetchAndStoreOrdersPromise]);
 };

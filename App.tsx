@@ -15,7 +15,7 @@ import Toast from "react-native-toast-notifications";
 import GlobalLoader from "./components/globalLoader";
 // import { Provider as PaperProvider } from "react-native-paper";
 axios.defaults.baseURL = constants.IS_DEVELOPMENT
-  ? "http://192.168.98.14:5000/"
+  ? "http://192.168.119.14:5000/"
   : "https://api.eatrofoods.com/";
 
 export default function App() {

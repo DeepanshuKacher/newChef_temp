@@ -1,11 +1,9 @@
 import type { Order } from "../../../screens/order/redux";
+import { Kot } from "../../functions/onLoad/fetchAndStoreFunctions";
 import { action_types, store } from "../../redux-store";
 
-export const pushInOrderContainer = (item: {
-  order: Order;
-  orderNo: number;
-}) => {
-  store.dispatch(action_types.pushKotStore([item.order.orderId]));
+export const pushInOrderContainer = (item: Kot) => {
+  // store.dispatch(action_types.pushKotStore([item.order.orderId]));
   store.dispatch(action_types.pushInOrderContainer(item));
 };
 

@@ -11,127 +11,140 @@ import type { Order } from "../order/redux";
 import { Fragment } from "react";
 import axios, { AxiosResponse } from "axios";
 import { constants } from "../../useFullItems/constants";
+import { Kot } from "../../useFullItems/functions/onLoad/fetchAndStoreFunctions";
 
 function OnGoingOrder() {
   /* states */
   const selfInfo = useAppSelector((store) => store.selfInfo.defaultValues);
 
-  const orders = useAppSelector((store) => store.orderContainer.orders)?.filter(
-    (order) => order?.chefAssign === selfInfo?.id && !order?.completed
+  const kots = useAppSelector((store) => store.orderContainer.orders)?.filter(
+    (order) => order.value.chefAssign === selfInfo?.id && !order.value.completed
   );
+
+  // console.log(orders);
 
   const { dishesh, tables } = useAppSelector(
     (store) => store.restaurantInfoSlice.defaultValues
-  );
-
-  const { noRepeatContainer, kot } = useAppSelector(
-    (store) => store?.orderContainer
   );
 
   const dispatch = useAppDispatch();
 
   /* functions */
 
-  const convertOrderKeyToUUID = (orderKey: string) => {
-    return orderKey.split(":")[0];
-  };
-
   const rejetOrder = async (
-    orderId: string[],
+    orderId: Kot["id"],
     tableNumber: number,
     tableSectionId: string
   ) => {
-    const promiseContainer: Promise<AxiosResponse<any, any>>[] = [];
-
-    for (let x of orderId) {
-      promiseContainer.push(
-        axios.patch("/orders/reject", {
-          orderId: x,
+    try {
+      await axiosPatchFunction({
+        parentUrl: "orders",
+        childUrl: "reject",
+        // toggleGlobalLoader: true,
+        showGlobalLoader: true,
+        data: {
+          orderId,
           tableNumber,
           tableSectionId,
-        })
-      );
-    }
-
-    dispatch(action_types.toggleGlobalLoader(true));
-
-    try {
-      await Promise.all(promiseContainer);
+        },
+      });
     } catch (error) {
       if (constants.IS_DEVELOPMENT) console.log(error);
-
       alert("Some error");
     }
-
-    dispatch(action_types.toggleGlobalLoader(false));
+    // const promiseContainer: Promise<AxiosResponse<any, any>>[] = [];
+    // for (let x of orderId) {
+    //   promiseContainer.push(
+    //     axios.patch("/orders/reject", {
+    //       orderId: x,
+    //       tableNumber,
+    //       tableSectionId,
+    //     })
+    //   );
+    // }
+    // dispatch(action_types.toggleGlobalLoader(true));
+    // try {
+    //   await Promise.all(promiseContainer);
+    // } catch (error) {
+    //   if (constants.IS_DEVELOPMENT) console.log(error);
+    //   alert("Some error");
+    // }
+    // dispatch(action_types.toggleGlobalLoader(false));
   };
 
   const completeOrder = async (
-    orderId: string[],
+    orderId: string,
     tableNumber: number,
     tableSectionId: string
   ) => {
-    const promiseContainer: Promise<AxiosResponse<any, any>>[] = [];
-
-    for (let x of orderId) {
-      promiseContainer.push(
-        axios.patch("/orders/complete", {
-          orderId: x,
+    try {
+      await axiosPatchFunction({
+        parentUrl: "orders",
+        childUrl: "complete",
+        // toggleGlobalLoader: true,
+        showGlobalLoader: true,
+        data: {
+          orderId,
           tableNumber,
           tableSectionId,
-        })
-      );
-    }
-
-    dispatch(action_types.toggleGlobalLoader(true));
-
-    try {
-      await Promise.all(promiseContainer);
+        },
+      });
     } catch (error) {
       if (constants.IS_DEVELOPMENT) console.log(error);
       alert("Some error");
     }
+    // const promiseContainer: Promise<AxiosResponse<any, any>>[] = [];
 
-    dispatch(action_types.toggleGlobalLoader(false));
+    // for (let x of orderId) {
+    //   promiseContainer.push(
+    //     axios.patch("/orders/complete", {
+    //       orderId: x,
+    //       tableNumber,
+    //       tableSectionId,
+    //     })
+    //   );
+    // }
+
+    // dispatch(action_types.toggleGlobalLoader(true));
+
+    // try {
+    //   await Promise.all(promiseContainer);
+    // } catch (error) {
+    //   if (constants.IS_DEVELOPMENT) console.log(error);
+    //   alert("Some error");
+    // }
+
+    // dispatch(action_types.toggleGlobalLoader(false));
   };
 
   const safeArea = useSafeAreaInsets();
 
-  const keyExtractor = (item: string[]) => item?.[0];
+  const keyExtractor = (item: Kot) => item.id;
 
-  const renderItem = ({ item }: { item: string[] }) => {
-    const firstOrder = noRepeatContainer[convertOrderKeyToUUID(item[0])];
+  const renderItem = ({ item }: { item: Kot }) => {
+    // const firstOrder = noRepeatContainer[convertOrderKeyToUUID(item[0])];
 
     const tableSectionDetail = tables.find(
-      (table) => table.id === firstOrder?.["tableSectionId"]
+      (table) => table.id === item.value.tableSectionId
     );
 
-    const orderExist = orders?.find(
-      (order) => order?.orderId === firstOrder?.orderId
-    );
-
-    if (!orderExist) return null;
     return (
       <View style={{ paddingVertical: 20 }}>
         <Text style={{ textAlign: "center" }} variant="titleLarge">
           {tableSectionDetail?.prefix}
-          {firstOrder?.tableNumber}
+          {item.value.tableNumber}
           {tableSectionDetail?.suffix}
         </Text>
         {/* <Text style={{ textAlign: "center" }} variant="titleLarge">
           {dishesh[item.dishId]}
         </Text> */}
 
-        {item.map((orderRedisKey) => {
-          const orderDetail =
-            noRepeatContainer[convertOrderKeyToUUID(orderRedisKey)];
-
-          const fullItemQuantity = parseInt(orderDetail?.fullQuantity || "0");
-
-          const halfItemQuantity = parseInt(orderDetail?.halfQuantity || "0");
+        {item.value.orders.map((order) => {
+          const fullItemQuantity = parseInt(order.fullQuantity || "0");
+          const halfItemQuantity = parseInt(order.halfQuantity || "0");
 
           return (
-            <Fragment key={orderRedisKey}>
+            <Fragment key={order.orderId}>
               {/* <Text style={{ textAlign: "center" }} variant="titleLarge">
                 {dishesh?.[orderDetail?.dishId]}
               </Text> */}
@@ -140,7 +153,7 @@ function OnGoingOrder() {
                   <DataTable.Row>
                     <DataTable.Cell>
                       <Text variant="bodyLarge">
-                        {dishesh?.[orderDetail?.dishId]} - {fullItemQuantity}
+                        {dishesh?.[order.dishId]} - {fullItemQuantity}
                       </Text>
                     </DataTable.Cell>
                     {/* <DataTable.Title>
@@ -194,12 +207,12 @@ function OnGoingOrder() {
                   </DataTable.Row>
                 </DataTable> */}
               </View>
-              {orderDetail?.user_description ? (
+              {order?.user_description ? (
                 <Text
                   variant="bodyLarge"
                   style={{ paddingVertical: 5, paddingHorizontal: 5 }}
                 >
-                  Description :- {orderDetail?.user_description}
+                  Description :- {order?.user_description}
                 </Text>
               ) : null}
             </Fragment>
@@ -281,9 +294,9 @@ function OnGoingOrder() {
             buttonColor="#cf3535"
             onPress={() => {
               rejetOrder(
-                item.map((orderKey) => convertOrderKeyToUUID(orderKey)),
-                parseInt(firstOrder.tableNumber),
-                firstOrder.tableSectionId
+                item.id,
+                item.value.tableNumber,
+                item.value.tableSectionId
               );
               // console.log("first");
             }}
@@ -295,11 +308,10 @@ function OnGoingOrder() {
             buttonColor="green"
             onPress={() => {
               completeOrder(
-                item.map((orderKey) => convertOrderKeyToUUID(orderKey)),
-                parseInt(firstOrder.tableNumber),
-                firstOrder.tableSectionId
+                item.id,
+                item.value.tableNumber,
+                item.value.tableSectionId
               );
-              // console.log("first");
             }}
           >
             Prepared
@@ -325,7 +337,7 @@ function OnGoingOrder() {
       renderItem={renderItem}
       keyExtractor={keyExtractor}
       // ListHeaderComponent={<Text>Orders</Text>}
-      data={kot}
+      data={kots}
     />
   );
 }

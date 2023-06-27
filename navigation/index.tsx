@@ -16,16 +16,14 @@ const Tab = createBottomTabNavigator();
 const BottomNavigation = () => {
   const ordersLength = useAppSelector(
     (store) => store?.orderContainer?.orders
-  )?.filter(
-    (order) => order?.chefAssign === undefined && order?.completed !== true
-  ).length;
+  )?.filter((kot) => !kot?.value?.chefAssign && !kot.value.completed).length;
 
   const selfInfo = useAppSelector((store) => store.selfInfo.defaultValues);
 
   const preparingOrderLength = useAppSelector(
     (store) => store.orderContainer.orders
   )?.filter(
-    (order) => order.chefAssign === selfInfo.id && !order.completed
+    (order) => order.value.chefAssign === selfInfo?.id && !order.value.completed
   ).length;
   return (
     <Tab.Navigator screenOptions={{ headerShown: false }}>

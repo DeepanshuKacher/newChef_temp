@@ -11,6 +11,7 @@ export const axiosPatchFunction = async ({
   data,
   showGlobalLoader,
   toggleGlobalLoader,
+  errorInfo,
 }: {
   thenFunction?: any;
   parentUrl: keyof typeof urls;
@@ -19,6 +20,10 @@ export const axiosPatchFunction = async ({
   data: any;
   showGlobalLoader?: true;
   toggleGlobalLoader?: true;
+  errorInfo?: {
+    code: number;
+    message: string;
+  };
 }) => {
   if (showGlobalLoader || toggleGlobalLoader)
     store.dispatch(action_types.toggleGlobalLoader(true));
@@ -33,8 +38,13 @@ export const axiosPatchFunction = async ({
       if (showGlobalLoader)
         store.dispatch(action_types.toggleGlobalLoader(false));
 
+      if (errorInfo?.code) {
+        if (error.response?.status === errorInfo.code) {
+          return alert(errorInfo.message);
+        }
+      }
       alert("Some Error");
-      console.log(error, error.cause, error.message, error.name, error.config);
+      console.log(error.response?.status);
     })
     .finally(() => {
       if (toggleGlobalLoader)
